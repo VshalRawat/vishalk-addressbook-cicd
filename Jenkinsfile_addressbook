@@ -1,1 +1,33 @@
 
+pipeline {
+    agent any
+
+    environment {
+        REMOTE_USER = "ubuntu"
+        REMOTE_HOST = "51.20.52.217"
+        SSH_KEY = "/home/ubuntu/vishal-key.pem"
+        APP_PATH = "/opt/tomcat/webapps"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/VshalRawat/vishalk-addressbook-cicd.git'
+            }
+        }
+
+        stage('Build & Package') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Deploy WAR') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'deploy_war.yml'
+                )
+            }
+        }
+    }
+}
